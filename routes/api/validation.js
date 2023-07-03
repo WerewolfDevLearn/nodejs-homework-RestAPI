@@ -1,3 +1,4 @@
+
 const Joi = require("joi");
 
 const schemaContact = Joi.object({
@@ -21,3 +22,4 @@ const validation = (shema, obj, next) => {
 module.exports = (req, res, next) => {
   return validation(schemaContact, req.body, next);
 };
+
