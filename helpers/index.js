@@ -1,6 +1,5 @@
-const httpErrHandler = require("./HttpErrorHendler");
-const mngsErrorHandler = require("./MngsErrorHandler");
+const httpErrHandler = require("./HttpErrorHandler");
+
 module.exports = {
   httpErrHandler,
-  mngsErrorHandler,
 };

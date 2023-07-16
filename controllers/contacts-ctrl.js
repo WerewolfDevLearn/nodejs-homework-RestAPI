@@ -1,24 +1,49 @@
-const Contact = require("./schemas/contacts-shm");
+const Contact = require("../models/contacts-shm");
 const { controlWrapper } = require("../decorators");
+const httpErrHandler = require("../helpers");
 
-const getAllConstacs = async () => {
-  return Contact.find({});
+const getAllConstacs = async (_, res) => {
+  const result = await Contact.find();
+  res.json(result);
 };
-const getContactById = contactId => {
-  return Contact.findOne({ _id: contactId });
+const getContactById = async (req, res) => {
+  const { contactId } = req.params;
+  const result = await Contact.findOne({ _id: contactId });
+  if (!result) {
+    throw httpErrHandler(404);
+  }
+  res.json(result);
 };
-const addContact = async ({ name, email, phone }) => {
-  return Contact.create({ name, email, phone });
+const addContact = async (req, res) => {
+  const result = await Contact.create(req.body);
+  res.status(201).json(result);
 };
-const updateContact = async (contactId, fields) => {
-  return Contact.findByIdAndUpdate({ _id: contactId }, fields, { new: true });
+const updateContact = async (req, res) => {
+  const { contactId } = req.params;
+  const result = await Contact.findByIdAndUpdate(contactId, req.body, { new: true });
+  if (!result) {
+    throw httpErrHandler(404, `Contact with id ${contactId} not found`);
+  }
+  res.json(result);
 };
-const removeContact = async contactId => {
-  return Contact.findByIdAndRemove({ _id: contactId });
+const removeContact = async (req, res) => {
+  const { contactId } = req.params;
+  const result = await Contact.findByIdAndRemove(contactId);
+  if (!result) {
+    throw httpErrHandler(404);
+  }
+  res.json({
+    message: `Contact with id ${contactId} deleted`,
+  });
 };
 
-const updateContactStatus = async (contactId, favorite) => {
-  return Contact.findByIdAndUpdate({ _id: contactId }, { favorite }, { new: true });
+const updateContactStatus = async (req, res) => {
+  const { contactId } = req.params;
+  const result = await Contact.findByIdAndUpdate(contactId, req.body, { new: true });
+  if (!result) {
+    throw httpErrHandler(404, `Contact with ${contactId} not found`);
+  }
+  res.json(result);
 };
 
 module.exports = {
