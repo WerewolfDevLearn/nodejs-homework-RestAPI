@@ -1,7 +1,7 @@
 const express = require("express");
-const contactMTD = require("../../models/contacts");
+const contactMTD = require("../models/contacts");
 const router = express.Router();
-const validate = require("./validation");
+const validate = require("../routes/api/validation");
 
 router.get("/", async (req, res, next) => {
   try {

@@ -1,3 +1,5 @@
+
+
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const crypto = require("crypto");
@@ -41,7 +43,7 @@ const removeContact = async contactId => {
   try {
     const contactList = await getContacts();
     const isID = contactList.some(contact => contact.id === contactId);
-    console.log(isID);
+  
     if (!isID) {
       console.error(`No such contact with id:${contactId}`);
       return;
