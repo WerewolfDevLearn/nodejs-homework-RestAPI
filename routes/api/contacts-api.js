@@ -4,12 +4,13 @@ const controller = require("../../controllers/contacts-ctrl");
 const { schemaContactJoi, schemaFavorite } = require("../../schemas/validation");
 const { validateRqBody } = require("../../decorators");
 const { isValidId } = require("../../middleware");
+const auth = require("../../middleware/auth-mw");
 
-router.get("/", controller.getAllConstacs);
-router.get("/:contactId", isValidId, controller.getContactById);
-router.post("/", validateRqBody(schemaContactJoi), controller.addContact);
-router.put("/:contactId", isValidId, validateRqBody(schemaContactJoi), controller.updateContact);
-router.delete("/:contactId", isValidId, controller.removeContact);
-router.patch("/:contactId/favorite", isValidId, validateRqBody(schemaFavorite), controller.updateContact);
+router.get("/", auth, controller.getAllConstacs);
+router.get("/:contactId", auth, isValidId, controller.getContactById);
+router.post("/", auth, validateRqBody(schemaContactJoi), controller.addContact);
+router.put("/:contactId", auth, isValidId, validateRqBody(schemaContactJoi), controller.updateContact);
+router.delete("/:contactId", auth, isValidId, controller.removeContact);
+router.patch("/:contactId/favorite", auth, isValidId, validateRqBody(schemaFavorite), controller.updateContact);
 
 module.exports = router;
