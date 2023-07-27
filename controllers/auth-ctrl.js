@@ -18,13 +18,27 @@ const register = async (req, res) => {
   if (user) {
     throw httpErrHandler(409, "Email in use");
   }
+
   const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+
   const avatarUrl = gravatar.url(email);
   const result = await User.create({ email, password: hashPassword, avatarURL: avatarUrl });
+
+  const payload = {
+    id: result._id,
+  };
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "24h" });
+  await User.findByIdAndUpdate(result._id, { token });
+
+  const returnedUser = await User.findById(payload.id);
+
   res.status(201).json({
-    eamil: result.email,
-    subscription: result.subscription,
-    avatarUrl: result.avatarURL,
+    token: returnedUser.token,
+    user: {
+      email: returnedUser.email,
+      subscription: returnedUser.subscription,
+      avatarUrl: returnedUser.avatarURL,
+    },
   });
 };
 
