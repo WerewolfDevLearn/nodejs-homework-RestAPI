@@ -23,7 +23,10 @@ const userSchema = new Schema(
       type: String,
       default: null,
     },
+    avatarURL: String,
+    avatarCloudURL: String,
   },
+
   { versionKey: false, timestamps: true }
 );
 
