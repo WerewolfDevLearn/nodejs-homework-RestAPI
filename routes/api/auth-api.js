@@ -1,5 +1,5 @@
 const express = require("express");
-const { userRegisterJoi, userLoginJoi, userSubscription } = require("../../schemas/users-vldtn");
+const { userRegisterJoi, userLoginJoi, userSubscription, userEmailSchem } = require("../../schemas/users-vldtn");
 const { validateRqBody } = require("../../decorators");
 const authController = require("../../controllers/auth-ctrl");
 const auth = require("../../middleware/auth-mw");
@@ -12,6 +12,7 @@ router.get("/current", auth, authController.getCurrent);
 router.post("/logout", auth, authController.logOut);
 router.patch("/subscription", auth, validateRqBody(userSubscription), authController.subscriptionUpdata);
 router.patch("/avatars", auth, upload.single("avatar"), validateRqBody(userSubscription), authController.avatarUpdata);
-router.get("/verify/:verificationToken", authController.verify);
+router.get("/verify/:verificationToken", authController.verifyByCode);
+router.post("/verify", validateRqBody(userEmailSchem), authController.verifyByEmail);
 
 module.exports = router;

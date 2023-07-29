@@ -14,6 +14,7 @@ const avatarsPath = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
+  console.log("email: ", email);
 
   const user = await User.findOne({ email });
   if (user) {
@@ -51,7 +52,8 @@ const register = async (req, res) => {
     },
   });
 };
-const verify = async (req, res) => {
+
+const verifyByCode = async (req, res) => {
   const { verificationToken } = req.params;
   const user = await User.findOne({ verificationToken });
   if (!user) {
@@ -62,6 +64,30 @@ const verify = async (req, res) => {
     message: "Verification successful",
   });
 };
+
+const verifyByEmail = async (req, res) => {
+  const { email } = req.body;
+  console.log(req);
+
+  const user = await User.findOne({ email });
+  console.log("user: ", user);
+
+  if (!user) {
+    throw httpErrHandler(401);
+  }
+
+  if (user.verify) throw httpErrHandler(400, "Verification has already been passed");
+
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${user.verificationToken}">Click to verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
+  res.json({ message: "Verification email sent" });
+};
+
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -148,7 +174,8 @@ const avatarUpdata = async (req, res) => {
 
 module.exports = {
   register: controlWrapper(register),
-  verify: controlWrapper(verify),
+  verifyByCode: controlWrapper(verifyByCode),
+  verifyByEmail: controlWrapper(verifyByEmail),
   login: controlWrapper(login),
   getCurrent: controlWrapper(getCurrent),
   logOut: controlWrapper(logOut),
