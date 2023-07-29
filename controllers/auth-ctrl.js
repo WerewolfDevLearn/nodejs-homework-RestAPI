@@ -6,8 +6,9 @@ const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { controlWrapper } = require("../decorators");
-const { httpErrHandler, cloudinary } = require("../helpers");
-const { SECRET_KEY } = process.env;
+const { httpErrHandler, cloudinary, sendEmail } = require("../helpers");
+const { nanoid } = require("nanoid");
+const { SECRET_KEY, BASE_URL } = process.env;
 
 const avatarsPath = path.resolve("public", "avatars");
 
@@ -18,15 +19,24 @@ const register = async (req, res) => {
   if (user) {
     throw httpErrHandler(409, "Email in use");
   }
+  const verificationToken = nanoid();
 
   const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-
   const avatarUrl = gravatar.url(email);
-  const result = await User.create({ email, password: hashPassword, avatarURL: avatarUrl });
+  const result = await User.create({ email, password: hashPassword, verificationToken, avatarURL: avatarUrl });
+
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${verificationToken}">Click to verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
 
   const payload = {
     id: result._id,
   };
+
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "24h" });
   await User.findByIdAndUpdate(result._id, { token });
 
@@ -41,7 +51,17 @@ const register = async (req, res) => {
     },
   });
 };
-
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw httpErrHandler(401);
+  }
+  await User.findByIdAndUpdate(user._id, { verify: true, verificationToken: "" });
+  res.status(200).json({
+    message: "Verification successful",
+  });
+};
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -52,6 +72,11 @@ const login = async (req, res) => {
   if (!passCompare) {
     throw httpErrHandler(401, "Email or password is wrong");
   }
+
+  if (!user.verify) {
+    throw httpErrHandler(401, "Email is not varified");
+  }
+
   const payload = {
     id: user._id,
   };
@@ -123,6 +148,7 @@ const avatarUpdata = async (req, res) => {
 
 module.exports = {
   register: controlWrapper(register),
+  verify: controlWrapper(verify),
   login: controlWrapper(login),
   getCurrent: controlWrapper(getCurrent),
   logOut: controlWrapper(logOut),
