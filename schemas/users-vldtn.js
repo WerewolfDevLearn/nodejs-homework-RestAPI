@@ -14,9 +14,13 @@ const userLoginJoi = Joi.object({
 const userSubscription = Joi.object({
   subscription: Joi.string().valid("starter", "pro", "business"),
 });
+const userEmailSchem = Joi.object({
+  email: Joi.string().email({ minDomainSegments: 2 }).required(),
+});
 
 module.exports = {
   userRegisterJoi,
   userLoginJoi,
   userSubscription,
+  userEmailSchem,
 };
