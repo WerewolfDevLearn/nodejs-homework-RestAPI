@@ -14,7 +14,6 @@ const avatarsPath = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
-  console.log("email: ", email);
 
   const user = await User.findOne({ email });
   if (user) {
@@ -67,11 +66,8 @@ const verifyByCode = async (req, res) => {
 
 const verifyByEmail = async (req, res) => {
   const { email } = req.body;
-  console.log(req);
 
   const user = await User.findOne({ email });
-  console.log("user: ", user);
-
   if (!user) {
     throw httpErrHandler(401);
   }
@@ -111,7 +107,7 @@ const login = async (req, res) => {
   res.status(200).json({
     token,
     user: {
-      eamil: returnedUser.email,
+      emial: returnedUser.email,
       subscription: returnedUser.subscription,
       avatarUrl: returnedUser.avatarURL,
     },

@@ -11,7 +11,7 @@ router.post("/login", validateRqBody(userLoginJoi), authController.login);
 router.get("/current", auth, authController.getCurrent);
 router.post("/logout", auth, authController.logOut);
 router.patch("/subscription", auth, validateRqBody(userSubscription), authController.subscriptionUpdata);
-router.patch("/avatars", auth, upload.single("avatar"), validateRqBody(userSubscription), authController.avatarUpdata);
+router.patch("/avatars", auth, upload.single("avatar"), authController.avatarUpdata);
 router.get("/verify/:verificationToken", authController.verifyByCode);
 router.post("/verify", validateRqBody(userEmailSchem), authController.verifyByEmail);
 

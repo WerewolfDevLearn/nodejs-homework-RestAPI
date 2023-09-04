@@ -6,6 +6,7 @@ const tempDir = path.resolve("temp");
 const multerConfig = multer.diskStorage({
   destination: tempDir,
   filename: (req, file, cb) => {
+    console.log("file", file);
     const { _id } = req.user;
     const uniqueAvatarName = `${_id}_${file.originalname}`;
     cb(null, uniqueAvatarName);
